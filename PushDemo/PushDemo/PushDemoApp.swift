@@ -53,9 +53,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     // FCM 토큰 업데이트 수신
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("Firebase registration token: \(String(describing: fcmToken))")
-        let dataDict: [String: String] = ["token": fcmToken ?? ""]
-        NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
-        // 필요한 경우 서버로 토큰 전송
+        guard let fcmToken = fcmToken else { return }
+        print("Firebase registration token: \(fcmToken)")
+        sendTokenToServer(token: fcmToken)
+    }
+    
+    func sendTokenToServer(token: String) {
+        guard let url = URL(string: "http://192.168.0.16:3000/register-token") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: Any] = ["token": token]
+        guard let finalBody = try? JSONSerialization.data(withJSONObject: body) else { return }
+        
+        request.httpBody = finalBody
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error sending token to server: \(error.localizedDescription)")
+                return
+            }
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                print("Successfully sent token to server")
+            } else {
+                print("Failed to send token with response: \(String(describing: response))")
+            }
+        }.resume()
     }
 }
