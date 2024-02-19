@@ -4,6 +4,8 @@
 <dict>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>external-accessory</string>
+		<string>push-to-talk</string>
 		<string>remote-notification</string>
 	</array>
 </dict>
