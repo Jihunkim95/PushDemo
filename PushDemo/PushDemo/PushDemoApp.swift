@@ -58,6 +58,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         sendTokenToServer(token: fcmToken)
     }
     
+    //Test용 포그라운드에서도 알림 볼 수 있는 로직
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // 앱이 포그라운드에 있을 때 알림 메시지와 함께 배너를 표시하도록 설정
+        completionHandler([.banner, .sound, .badge])
+    }
     func sendTokenToServer(token: String) {
         guard let url = URL(string: "http://192.168.0.16:3000/register-token") else { return }
         var request = URLRequest(url: url)
